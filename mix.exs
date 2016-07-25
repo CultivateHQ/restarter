@@ -35,7 +35,7 @@ defmodule Restarter.Mixfile do
       files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
       maintainers: ["Paul Wilson"],
       licenses: ["MIT"],
-      links: %{}
+      links: %{ "GitHub" => "https://github.com/CultivateHQ/restarter"}
     ]
   end
 end
