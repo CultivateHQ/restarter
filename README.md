@@ -25,3 +25,40 @@ def application do
 end
 ```
 
+## Usage
+
+To try out in `iex`, given:
+
+```
+defmodule MyGenServer do
+  use GenServer
+
+  def start_link arg do
+    GenServer.start_link(__MODULE__, arg, [name: :bob])
+  end
+
+  def init(arg) do
+    IO.inspect {:starting, arg}
+    {:ok, []}
+  end
+end
+
+```
+In `iex -S mix`
+
+```
+{:ok, pid} = Restarter.start_link({MyGenServer, :start_link, [:sue]}, 10000, [name: :restarter])
+Process.whereis(:bob) # It's been started
+
+Process.whereis(:bob) |> Process.exit(:kill)
+
+Process.whereis(:bob) # nil
+
+# Wait 10 seconds
+
+
+Process.whereis(:bob) # It's been re-started
+
+```
+
+Obviously, you would be starting all this in a supervision tree, with the `Restarter` as a `worker`.
