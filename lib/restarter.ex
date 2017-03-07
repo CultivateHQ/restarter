@@ -25,19 +25,21 @@ defmodule Restarter do
   end
 
   def init({status, start_delay}) do
-    Process.send_after(self, :start, start_delay)
+    Process.send_after(self(), :start, start_delay)
     Process.flag(:trap_exit, true)
     {:ok, status}
   end
 
-  def handle_info(:start, state = %{module: module, function: function, args: args}) do
-    {:ok, pid} = apply(module, function, args)
-    Process.link(pid)
+  def handle_info(:start, state = %{module: module, function: function, args: args, retry_interval: retry_interval}) do
+    case apply(module, function, args) do
+      {:ok, pid} -> Process.link(pid)
+      _ -> Process.send_after(self(), :start, retry_interval)
+    end
     {:noreply, state}
   end
 
   def handle_info({:EXIT, _pid, _reason}, status = %{retry_interval: retry_interval}) do
-    Process.send_after(self, :start, retry_interval)
+    Process.send_after(self(), :start, retry_interval)
     {:noreply, status}
   end
 end
